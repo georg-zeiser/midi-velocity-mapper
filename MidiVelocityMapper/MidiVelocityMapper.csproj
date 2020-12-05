@@ -1,0 +1,23 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="wwwroot\main-es2015.4f44b196ec7af76fae7e.js" />
+    <None Include="wwwroot\main-es5.4f44b196ec7af76fae7e.js" />
+    <None Include="wwwroot\polyfills-es2015.1f913f16a2d346cc8bdc.js" />
+    <None Include="wwwroot\polyfills-es5.1a3c78b07cd6f16c6e9a.js" />
+    <None Include="wwwroot\runtime-es2015.0811dcefd377500b5b1a.js" />
+    <None Include="wwwroot\runtime-es5.0811dcefd377500b5b1a.js" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="managed-midi" Version="1.9.14" />
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="5.2.1" />
+    <PackageReference Include="System.IO.Abstractions" Version="10.0.8" />
+  </ItemGroup>
+
+
+</Project>

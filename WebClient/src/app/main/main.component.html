@@ -1,0 +1,33 @@
+<div style="margin-bottom: 20px;">
+    <mat-form-field style="display: block;">
+        <mat-label>Midi Input Device</mat-label>
+        <mat-select [(ngModel)]="settings.midiIn" name="inputDevice">
+            <mat-option *ngFor="let device of inputDevices"
+            [value]="device.value"
+            [disabled]="!!device.value && device.value == settings.midiOut"
+            (onSelectionChange)="onMidiInputDeviceChanged(device.value, $event)">
+                {{device.viewValue}}
+            </mat-option>
+        </mat-select>
+    </mat-form-field>
+</div>
+<div style="margin-bottom: 20px;">
+    <mat-form-field style="display: block;">
+        <mat-label>Midi Output Device</mat-label>
+        <mat-select [(ngModel)]="settings.midiOut" name="outputDevice">
+            <mat-option *ngFor="let device of outputDevices"
+            [value]="device.value"
+            [disabled]="!!device.value && device.value == settings.midiIn"
+            (onSelectionChange)="onMidiOutputDeviceChanged(device.value, $event)">
+                {{device.viewValue}}
+            </mat-option>
+        </mat-select>
+    </mat-form-field>
+</div>
+<div style="margin-bottom: 20px;">
+    <mat-selection-list [multiple]="false">
+        <mat-list-option *ngFor="let curve of settings.curves" [selected]="curve.name == settings.selectedCurve" (click)="onCurveSelected(curve.name)">
+            {{curve.name}}
+        </mat-list-option>
+    </mat-selection-list>
+</div>
