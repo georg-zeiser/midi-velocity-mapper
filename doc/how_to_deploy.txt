@@ -1,7 +1,7 @@
 instructions to deploy on a raspberry pi
 
 make sure you have latest version of the project directory (git pull),
-and all required tools (dotnet, nodejs, angular) are installed and configured
+and all required tools (dotnet, nodejs/npm, angular) are installed and configured
 
 
 1) fresh deployment:
