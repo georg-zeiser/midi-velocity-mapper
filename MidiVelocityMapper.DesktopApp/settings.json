@@ -1,0 +1,6 @@
+{
+  "MidiIn": "Digital Piano-1",
+  "MidiOut": "loopMIDI",
+  "Max": 108,
+  "Exponent": 1.3
+}
