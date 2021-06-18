@@ -1,6 +1,8 @@
 ﻿using Commons.Music.Midi;
 using MidiVelocityMapper.Lib.Helper;
 using MidiVelocityMapper.Lib.VelocityCalculators;
+using ScottPlot;
+using ScottPlot.Plottable;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -16,14 +18,49 @@ namespace MidiVelocityMapper.DesktopApp
 {
     public partial class MainForm : Form
     {
+        private FormsPlot Chart;
+        private ScatterPlot Plot;
+        private ScatterPlot HighlightedPoint;
+
         private SettingsHelper SettingsHelper = new SettingsHelper(Constants.SettingsFile);
 
         public MainForm()
         {
             InitializeComponent();
+
+            Chart = new FormsPlot();
+            Chart.Size = this.pictureBox1.Size;
+            Chart.Location = this.pictureBox1.Location;
+            Chart.Plot.SetAxisLimits(0, 127, 0, 127);
+            Chart.Plot.SetViewLimits(0, 127, 0, 127);
+            Chart.Configuration.DoubleClickBenchmark = false;
+            Chart.Configuration.LeftClickDragPan = false;
+            Chart.Configuration.RightClickDragZoom = false;
+            Chart.Configuration.ScrollWheelZoom = false;
+
+            Chart.MouseMove += Chart_MouseMove;
+            Chart.MouseLeave += Chart_MouseLeave;
+
+            this.Controls.Add(Chart);
+            this.Controls.Remove(this.pictureBox1);
+
             SetupMidiVelopcityMapper();
+            UpdateChart();
             BindEvents();
             BindDebugEvents();
+        }
+
+        private void Chart_MouseLeave(object sender, EventArgs e)
+        {
+            Chart.Plot.Clear(typeof(Crosshair));
+        }
+
+        private void Chart_MouseMove(object sender, EventArgs e)
+        {
+            var point = Plot.GetPointNearestX(Chart.GetMouseCoordinates().x);
+
+            Chart.Plot.Clear(typeof(Crosshair));
+            Chart.Plot.AddCrosshair(point.x, point.y);
         }
 
         private void SetupMidiVelopcityMapper()
@@ -70,7 +107,7 @@ namespace MidiVelocityMapper.DesktopApp
         {
             UnBindEvents();
 
-            var settings = new Settings()
+            var settings = new Lib.Helper.Settings()
             {
                 MidiIn = this.input.Text,
                 MidiOut = this.output.Text,
@@ -80,43 +117,9 @@ namespace MidiVelocityMapper.DesktopApp
 
             SettingsHelper.SaveSettings(settings);
             SetupMidiVelopcityMapper();
+            UpdateChart();
 
             BindEvents();
-        }
-
-        private void OnDrawComboboxItem(object sender, DrawItemEventArgs e)
-        {
-            ComboBox comboBox = (ComboBox)sender;
-            var label = (comboBox.Items[e.Index] as IMidiPortDetails).Name;
-
-            if (IsItemDisabled(comboBox, e.Index))
-            {
-                // NOTE we must draw the background or else each time we hover over the text it will be redrawn and its color will get darker and darker.
-                e.Graphics.FillRectangle(SystemBrushes.Window, e.Bounds);
-                e.Graphics.DrawString(label, comboBox.Font, SystemBrushes.GrayText, e.Bounds);
-            }
-            else
-            {
-                e.DrawBackground();
-
-                // Using winwaed's advice for selected items:
-                // Set the brush according to whether the item is selected or not
-                Brush brush = ((e.State & DrawItemState.Selected) > 0) ? SystemBrushes.HighlightText : SystemBrushes.ControlText;
-                e.Graphics.DrawString(label, comboBox.Font, brush, e.Bounds);
-
-                e.DrawFocusRectangle();
-            }
-        }
-
-        private bool IsItemDisabled(ComboBox comboBox, int index)
-        {
-            ComboBox toCheck = this.input;
-            if (comboBox == this.input)
-            {
-                toCheck = this.output;
-            }
-
-            return (comboBox.Items[index] as IMidiPortDetails).Name == toCheck.Text;
         }
 
         private void BindDebugEvents()
@@ -125,9 +128,28 @@ namespace MidiVelocityMapper.DesktopApp
             {
                 Invoke(new Action(() =>
                 {
-                    this.debug.Text = $"{original} >> {overridden}";
+                    HighlightedPoint.Xs[0] = original;
+                    HighlightedPoint.Ys[0] = overridden;
+                    HighlightedPoint.IsVisible = true;
+                    Chart.Render();
                 }));
             };
+        }
+
+        private void UpdateChart()
+        {
+            var map = Lib.MidiVelocityMapper.Instance.Calculator.GetMap();
+            double[] x = map.Select(x => Convert.ToDouble(x.In)).ToArray();
+            double[] y = map.Select(x => Convert.ToDouble(x.Out)).ToArray();
+
+            Chart.Plot.Clear();
+            Plot = Chart.Plot.AddScatter(x, y, null, 1, 5, MarkerShape.none, LineStyle.Solid);
+            Chart.Plot.AddScatter(x, x, Color.LightGray, 1, 5, MarkerShape.none, LineStyle.Dash);
+            HighlightedPoint = Chart.Plot.AddPoint(0, 0);
+            HighlightedPoint.Color = Color.Red;
+            HighlightedPoint.MarkerSize = 10;
+            HighlightedPoint.MarkerShape = MarkerShape.filledCircle;
+            HighlightedPoint.IsVisible = false;
         }
     }
 }

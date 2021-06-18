@@ -20,6 +20,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="ScottPlot.WinForms" Version="4.1.16" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\MidiVelocityMapper.Lib\MidiVelocityMapper.Lib.csproj" />
   </ItemGroup>
 
