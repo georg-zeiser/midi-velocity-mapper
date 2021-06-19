@@ -21,6 +21,11 @@ namespace MidiVelocityMapper.Lib.VelocityCalculators
 
         public int Calculate(int velocity)
         {
+            if (velocity == 0)
+            {
+                return 0;
+            }
+
             var result = 127 * Math.Pow((velocity - _min) / (_max - _min), _exponent);
             if (result > 127)
             {
@@ -30,6 +35,7 @@ namespace MidiVelocityMapper.Lib.VelocityCalculators
             {
                 result = 1;
             }
+
             return Convert.ToInt32(result);
         }
 
